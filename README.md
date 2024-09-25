@@ -8,7 +8,6 @@ This Neovim plugin provides seamless integration with Norminette, a C code linte
 
 * **Norminette Integration:** Runs Norminette transparently when saving C files.
 * **Error Visualization:** Displays Norminette errors directly in the editor using *virtual text*.
-* **Customizable Configuration:** Allows customization of error appearance and linter execution frequency.
 
 ### **Installation:**
 
