@@ -22,8 +22,5 @@ This Neovim plugin provides seamless integration with Norminette, a C code linte
 ```lua
 return {
     'TuTaRdrgZ/norminette-lint.nvim'
-    config = function()
-        require('norminette-lint').setup()
-    end
 }
 ```
