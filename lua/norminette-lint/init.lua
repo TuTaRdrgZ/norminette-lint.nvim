@@ -14,13 +14,13 @@ vim.api.nvim_create_autocmd({"BufWritePost"}, {
 
     for _, line in ipairs(lines) do
       local parts = vim.split(line, ":")
+      -- print(vim.inspect(parts))
       if #parts < 3 then
         goto continue
       end
-
-      parts[3] = string.match(parts[3], '%d[%d]')
-
-      local row = tonumber(parts[3])
+      local rowline
+      rowline = string.match(parts[3], '%d[%d]*')
+      local row = tonumber(rowline)
       -- local col = tonumber(parts[4])
       local message = parts[5]
 
@@ -29,6 +29,5 @@ vim.api.nvim_create_autocmd({"BufWritePost"}, {
     end
   end
 })
-
 
 return M
