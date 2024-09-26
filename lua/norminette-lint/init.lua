@@ -24,7 +24,7 @@ vim.api.nvim_create_autocmd({"BufWritePost"}, {
       -- local col = tonumber(parts[4])
       local message = parts[5]
 
-      vim.api.nvim_buf_set_virtual_text(event.buf, ns, row - 1, {{message, "IncSearch"}}, {})
+      vim.api.nvim_buf_set_virtual_text(event.buf, ns, row - 1, {{message, "ErrorMsg"}}, {})
       ::continue::
     end
   end
