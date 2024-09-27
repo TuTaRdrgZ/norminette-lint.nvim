@@ -29,7 +29,7 @@ This plugin can be installed using [Lazy.nvim](https://github.com/folke/lazy.nvi
   config = function()
     require("norminette-lint").setup({
       enable_on_start = false,  -- Default to false to improve startup performance
-      keybinding = "<leader>cn", -- Default keybinding, you can define yours
+      keybinding = "<leader>Fn", -- Default keybinding, you can define yours
     })
   end
 }
