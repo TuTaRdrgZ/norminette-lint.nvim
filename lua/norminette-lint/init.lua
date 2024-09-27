@@ -61,6 +61,14 @@ end
 local function set_diagnostics(bufnr)
   vim.diagnostic.reset(ns, bufnr) -- Clear previous diagnostics
 
+  vim.diagnostic.config({
+      virtual_text = {
+          prefix = '●', -- Prefix for the diagnostic text
+          spacing = 0, -- Space between the prefix and the text
+          severity = vim.diagnostic.severity.ERROR, -- Only show for errors
+          virt_text_pos = 'eol', -- Change the virtual text position
+      },
+  })
   local temp_file = save_temp_file(bufnr) -- Get temp file path
   local output = vim.fn.system("norminette " .. temp_file)
 
@@ -82,7 +90,7 @@ local function set_diagnostics(bufnr)
       lnum = row, -- line number (0-indexed)
       col = 0, -- column (start at 0 for now)
       severity = vim.diagnostic.severity.ERROR, -- Norminette reports errors
-      message = message
+      message = "Norminette: " .. message:gsub("^%s+", "")
     })
     ::continue::
   end
