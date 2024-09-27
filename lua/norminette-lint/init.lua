@@ -8,7 +8,7 @@ local line_cache = {} -- Cache to track lines' content
 -- Default options
 local default_options = {
   enable_on_start = false, -- Whether to enable the linter when Neovim starts
-  keybinding = "<leader>cn" -- Default keybinding for enabling the linter
+  keybinding = "<leader>Fn" -- Default keybinding for enabling the linter
 }
 
 -- Function to get current buffer lines
