@@ -4,9 +4,7 @@ A Neovim linter that uses Norminette to enforce C coding style.
 
 This Neovim plugin provides seamless integration with Norminette, a C code linter that helps maintain consistent and high-quality coding style. Upon saving or making changes in a C file, the plugin automatically runs Norminette and displays the errors directly in your editor, making it easy to identify and fix issues.
 
-
-https://github.com/user-attachments/assets/ac81afc5-26ca-46d7-9e63-452ac8a569c9
-
+https://github.com/user-attachments/assets/f96f2a86-5ce8-47a6-a84c-968060185fff
 
 ## Features
 
