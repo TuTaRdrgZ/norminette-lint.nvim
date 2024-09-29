@@ -45,6 +45,10 @@ end
 local function save_temp_file(bufnr)
   local file_ext = get_file_extension(bufnr)
 
+  if file_ext ~= "c" and file_ext ~= "h" then
+    return nil
+  end
+
   -- Create a temporary file with the exact original name for .h files
   if file_ext == "h" then
     return create_temp_file_for_h(bufnr)
@@ -70,6 +74,7 @@ local function set_diagnostics(bufnr)
       },
   })
   local temp_file = save_temp_file(bufnr) -- Get temp file path
+  if not temp_file then return end -- Return if the file extension is not .c or .h
   local output = vim.fn.system("norminette " .. temp_file)
 
   -- Delete the temp file after running norminette
@@ -119,7 +124,9 @@ local function set_autocmd()
     group = group,
     callback = function(event)
       if not enabled then return end -- Check if linter is enabled
-      set_diagnostics(event.buf) -- Run norminette diagnostics on save
+      if not set_diagnostics(event.buf) then -- Run norminette diagnostics on save
+        vim.notify("Couldn't run Norminette-lint", "Error", { title = "Norminette-lint" })
+      end
     end
   })
 
@@ -157,7 +164,10 @@ function M.enable()
     set_autocmd() -- Reset autocommands when enabling
     -- Run diagnostics immediately after enabling
     local bufnr = vim.api.nvim_get_current_buf() -- Get the current buffer number
-    set_diagnostics(bufnr) -- Run norminette diagnostics immediately
+    if not set_diagnostics(bufnr) then -- Run norminette diagnostics immediately
+      return nil
+    end
+    print("Enabling Norminette Linter")
   end
 end
 
@@ -167,16 +177,15 @@ function M.disable()
     enabled = false
     vim.api.nvim_clear_autocmds({ group = group }) -- Clear autocommands to disable
     vim.diagnostic.reset(ns) -- Clear diagnostics when disabled
+    print("Disabling Norminette Linter")
   end
 end
 
 -- Toggle function
 function M.toggle()
   if enabled then
-    print("Disabling Norminette Linter")
     M.disable()
   else
-    print("Enabling Norminette Linter")
     M.enable()
   end
 end
