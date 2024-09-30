@@ -124,9 +124,7 @@ local function set_autocmd()
     group = group,
     callback = function(event)
       if not enabled then return end -- Check if linter is enabled
-      if not set_diagnostics(event.buf) then -- Run norminette diagnostics on save
-        vim.notify("Couldn't run Norminette-lint", "Error", { title = "Norminette-lint" })
-      end
+      set_diagnostics(event.buf) -- Run norminette diagnostics on save
     end
   })
 
