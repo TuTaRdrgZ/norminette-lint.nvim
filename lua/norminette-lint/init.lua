@@ -162,10 +162,10 @@ function M.enable()
     set_autocmd() -- Reset autocommands when enabling
     -- Run diagnostics immediately after enabling
     local bufnr = vim.api.nvim_get_current_buf() -- Get the current buffer number
+    vim.notify("Enabling Norminette Linter", "Info", { title = "Norminette Linter" })
     if not set_diagnostics(bufnr) then -- Run norminette diagnostics immediately
       return nil
     end
-    vim.notify("Enabling Norminette Linter", "Info", { title = "Norminette Linter" })
   end
 end
 
