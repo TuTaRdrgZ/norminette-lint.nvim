@@ -165,7 +165,7 @@ function M.enable()
     if not set_diagnostics(bufnr) then -- Run norminette diagnostics immediately
       return nil
     end
-    print("Enabling Norminette Linter")
+    vim.notify("Enabling Norminette Linter", "Info", { title = "Norminette Linter" })
   end
 end
 
@@ -175,7 +175,7 @@ function M.disable()
     enabled = false
     vim.api.nvim_clear_autocmds({ group = group }) -- Clear autocommands to disable
     vim.diagnostic.reset(ns) -- Clear diagnostics when disabled
-    print("Disabling Norminette Linter")
+    vim.notify("Disabling Norminette Linter", "Info", { title = "Norminette Linter" })
   end
 end
 
