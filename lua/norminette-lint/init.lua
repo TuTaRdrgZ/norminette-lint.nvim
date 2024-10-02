@@ -1,9 +1,9 @@
 local M = {}
 
 local group = vim.api.nvim_create_augroup("Norminette", { clear = true })
-local ns = vim.api.nvim_create_namespace("norminette") -- Namespace for diagnostics
-local enabled = false -- state flag
-local line_cache = {} -- Cache to track lines' content
+local ns = vim.api.nvim_create_namespace("norminette")
+local enabled = false
+local line_cache = {} -- Cache to track lines content
 
 -- Default options
 local default_options = {
@@ -19,17 +19,17 @@ end
 -- Function to get the appropriate file extension for the temp file
 local function get_file_extension(bufnr)
   local file_name = vim.api.nvim_buf_get_name(bufnr)
-  return vim.fn.fnamemodify(file_name, ":e") -- Gets the extension of the current file (e.g., "c" or "h")
+  return vim.fn.fnamemodify(file_name, ":e") -- Gets the extension of the current file
 end
 
 -- Function to create a temporary file for .h files with the same name as the original in a temp directory
 local function create_temp_file_for_h(bufnr)
   local original_file_path = vim.api.nvim_buf_get_name(bufnr)
-  local file_name = vim.fn.fnamemodify(original_file_path, ":t") -- Get the exact file name (basename)
+  local file_name = vim.fn.fnamemodify(original_file_path, ":t")
 
   -- Create a temporary directory without altering the file name
-  local temp_dir = vim.fn.tempname() -- This will create a unique temp directory
-  vim.fn.mkdir(temp_dir, "p") -- Ensure the directory is created
+  local temp_dir = vim.fn.tempname()
+  vim.fn.mkdir(temp_dir, "p")
 
   -- Combine the temp directory with the original file name (keeping the name intact)
   local temp_path = temp_dir .. "/" .. file_name
@@ -67,14 +67,14 @@ local function set_diagnostics(bufnr)
 
   vim.diagnostic.config({
       virtual_text = {
-          prefix = '●', -- Prefix for the diagnostic text
-          spacing = 0, -- Space between the prefix and the text
-          severity = vim.diagnostic.severity.ERROR, -- Only show for errors
-          virt_text_pos = 'eol', -- Change the virtual text position
+          prefix = '●',
+          spacing = 0,
+          severity = vim.diagnostic.severity.ERROR,
+          virt_text_pos = 'eol',
       },
   })
-  local temp_file = save_temp_file(bufnr) -- Get temp file path
-  if not temp_file then return end -- Return if the file extension is not .c or .h
+  local temp_file = save_temp_file(bufnr)
+  if not temp_file then return end
   local output = vim.fn.system("norminette " .. temp_file)
 
   -- Delete the temp file after running norminette
@@ -88,13 +88,13 @@ local function set_diagnostics(bufnr)
     if #parts < 3 then goto continue end
 
     local rowline = string.match(parts[3], '%d[%d]*')
-    local row = tonumber(rowline) - 1 -- Neovim lines are 0-indexed
+    local row = tonumber(rowline) - 1
     local message = parts[5]
 
     table.insert(diagnostics, {
-      lnum = row, -- line number (0-indexed)
-      col = 0, -- column (start at 0 for now)
-      severity = vim.diagnostic.severity.ERROR, -- Norminette reports errors
+      lnum = row,
+      col = 0,
+      severity = vim.diagnostic.severity.ERROR,
       message = "Norminette: " .. message:gsub("^%s+", "")
     })
     ::continue::
@@ -120,20 +120,20 @@ end
 local function set_autocmd()
   -- Run diagnostics on buffer write (after the file is saved)
   vim.api.nvim_create_autocmd({"BufWritePost", "BufEnter"}, {
-    pattern = {"*.c", "*.h"}, -- Apply to both .c and .h files
+    pattern = {"*.c", "*.h"},
     group = group,
     callback = function(event)
-      if not enabled then return end -- Check if linter is enabled
-      set_diagnostics(event.buf) -- Run norminette diagnostics on save
+      if not enabled then return end
+      set_diagnostics(event.buf)
     end
   })
 
   -- Detect line changes without saving the file
   vim.api.nvim_create_autocmd({"TextChanged", "TextChangedI"}, {
-    pattern = {"*.c", "*.h"}, -- Apply to both .c and .h files
+    pattern = {"*.c", "*.h"},
     group = group,
     callback = function(event)
-      if not enabled then return end -- Check if linter is enabled
+      if not enabled then return end
 
       -- Check for line changes and re-run diagnostics if any line changed
       local bufnr = event.buf
@@ -149,7 +149,7 @@ local function set_autocmd()
       end
 
       if changed then
-        set_diagnostics(bufnr) -- Re-run diagnostics if there were changes
+        set_diagnostics(bufnr)
       end
     end
   })
@@ -161,9 +161,9 @@ function M.enable()
     enabled = true
     set_autocmd() -- Reset autocommands when enabling
     -- Run diagnostics immediately after enabling
-    local bufnr = vim.api.nvim_get_current_buf() -- Get the current buffer number
+    local bufnr = vim.api.nvim_get_current_buf()
     vim.notify("Enabling Norminette Linter", "Info", { title = "Norminette Linter" })
-    if not set_diagnostics(bufnr) then -- Run norminette diagnostics immediately
+    if not set_diagnostics(bufnr) then
       return nil
     end
   end
