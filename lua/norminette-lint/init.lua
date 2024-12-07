@@ -3,6 +3,7 @@ local M = {}
 local group = vim.api.nvim_create_augroup("Norminette", { clear = true })
 local ns = vim.api.nvim_create_namespace("norminette")
 local enabled = false
+local async = false
 local line_cache = {} -- Cache to track lines content
 
 -- Default options
@@ -63,6 +64,7 @@ end
 
 -- Function to run norminette and populate diagnostics
 local function set_diagnostics(bufnr)
+	print("Running normal")
   vim.diagnostic.reset(ns, bufnr) -- Clear previous diagnostics
 
   vim.diagnostic.config({
@@ -106,6 +108,66 @@ local function set_diagnostics(bufnr)
   -- Update cache of lines after diagnostics
   line_cache[bufnr] = get_buffer_lines(bufnr)
 end
+
+-- Function to run norminette and populate diagnostics
+-- dependencies = {'lewis6991/async.nvim'},
+local async = require('async') -- Import async library
+
+-- Function to run norminette and populate diagnostics asynchronously
+local function set_diagnostics_async(bufnr)
+	print("Running async")
+  vim.diagnostic.reset(ns, bufnr) -- Clear previous diagnostics
+
+  -- Configure diagnostics display
+  vim.diagnostic.config({
+      virtual_text = {
+          prefix = '●',
+          spacing = 0,
+          severity = vim.diagnostic.severity.ERROR,
+          virt_text_pos = 'eol',
+      },
+  })
+
+  local temp_file = save_temp_file(bufnr)
+  if not temp_file then return end
+
+  -- Run norminette asynchronously
+  async.run(function()
+    local output = vim.fn.system("norminette " .. temp_file)
+
+    -- Delete the temp file after running norminette
+    vim.fn.delete(temp_file)
+
+    local lines = vim.split(output, "\n")
+    local diagnostics = {}
+
+    for _, line in ipairs(lines) do
+      local parts = vim.split(line, ":")
+      if #parts < 3 then goto continue end
+
+      local rowline = string.match(parts[3], '%d[%d]*')
+      local row = tonumber(rowline) - 1
+      local message = parts[5]
+
+      table.insert(diagnostics, {
+        lnum = row,
+        col = 0,
+        severity = vim.diagnostic.severity.ERROR,
+        message = "Norminette: " .. message:gsub("^%s+", "")
+      })
+      ::continue::
+    end
+
+    -- Set diagnostics for the buffer after norminette completes
+    vim.diagnostic.set(ns, bufnr, diagnostics)
+    
+    -- Update cache of lines after diagnostics
+    line_cache[bufnr] = get_buffer_lines(bufnr)
+  end)
+end
+
+
+
 
 -- Function to check if a line has changed compared to the cache
 local function line_changed(bufnr, line_num)
@@ -203,6 +265,9 @@ function M.setup(opts)
   desc = "Toggle Norminette Linter" })
   if opts.enable_on_start then
     M.enable() -- Enable the linter if configured to do so on startup
+  end
+  if opts.async then
+	set_diagnostics = set_diagnostics_async
   end
 end
 
